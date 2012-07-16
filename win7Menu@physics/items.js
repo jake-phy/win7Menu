@@ -93,19 +93,15 @@ function GenericApplicationButton(appsMenuButton, app) {
 GenericApplicationButton.prototype = {
     __proto__: PopupMenu.PopupSubMenuMenuItem.prototype,
 
-    _init: function (appsMenuButton, app, withMenu) {
+    _init: function (appsMenuButton, app) {
         this.app = app;
         this.appsMenuButton = appsMenuButton;
         PopupMenu.PopupBaseMenuItem.prototype._init.call(this, {
             hover: false
         });
 
-        this.withMenu = withMenu;
-
-        if (this.withMenu) {
-            this.menu = new ApplicationMenu(this.actor);
-            this.menu.actor.set_style_class_name('menu-context-menu');
-        }
+        this.menu = new ApplicationMenu(this.actor);
+        this.menu.actor.set_style_class_name('menu-context-menu');
     },
 
     _onButtonReleaseEvent: function (actor, event) {
@@ -132,8 +128,6 @@ GenericApplicationButton.prototype = {
     },
 
     toggleMenu: function () {
-        if (!this.withMenu) return;
-
         if (!this.menu.isOpen) {
             let children = this.menu.box.get_children();
             for (var i in children) {
@@ -155,7 +149,7 @@ GenericApplicationButton.prototype = {
             }
         }
         this.menu.toggle();
-    },
+    }
 }
 
 function ApplicationButton(appsMenuButton, app) {
@@ -166,9 +160,9 @@ ApplicationButton.prototype = {
     __proto__: GenericApplicationButton.prototype,
 
     _init: function (appsMenuButton, app) {
-        GenericApplicationButton.prototype._init.call(this, appsMenuButton, app, true);
+        GenericApplicationButton.prototype._init.call(this, appsMenuButton, app);
 
-        this.actor.add_style_class_name('menu-category-button');
+        this.actor.set_style_class_name('menu-category-button');
         this.icon = this.app.create_icon_texture(APPLICATION_ICON_SIZE);
         this.label = new St.Label({
             text: this.app.get_name(),
@@ -214,7 +208,7 @@ PlaceButton.prototype = {
         PopupMenu.PopupBaseMenuItem.prototype._init.call(this, {
             hover: false
         });
-        this.actor.add_style_class_name('menu-category-button');
+        this.actor.set_style_class_name('menu-category-button');
         this.place = place;
         this.button_name = button_name;
         this.label = new St.Label({
@@ -249,7 +243,7 @@ ApplicationMenu.prototype = {
     _init: function (sourceActor) {
         PopupMenu.PopupMenuBase.prototype._init.call(this, sourceActor);
 
-        this.actor = new St.BoxLayout({ style_class: 'popup-sub-menu'});
+        this.actor = new St.BoxLayout();
 
         this.actor.add_actor(this.box);
         this.actor._delegate = this;
@@ -439,20 +433,20 @@ FavoritesButton.prototype = {
     __proto__: GenericApplicationButton.prototype,
 
     _init: function (appsMenuButton, app, nbFavorites) {
-        GenericApplicationButton.prototype._init.call(this, appsMenuButton, app, true);
+        GenericApplicationButton.prototype._init.call(this, appsMenuButton, app);
         let monitorHeight = Main.layoutManager.primaryMonitor.height;
         let real_size = (0.7 * monitorHeight) / nbFavorites;
         let icon_size = 0.6 * real_size;
         if (icon_size > MAX_FAV_ICON_SIZE) icon_size = MAX_FAV_ICON_SIZE;
         this.actor.style = "padding-top: " + (icon_size / 3) + "px;padding-bottom: " + (icon_size / 3) + "px; margin:auto;"
-
-        this.actor.add_style_class_name('menu-favorites-button');
-        this.addActor(app.create_icon_texture(icon_size));
+        this.actor.set_style_class_name('menu-favorites-button');
 
         this.label = new St.Label({
             text: this.app.get_name(),
             style_class: 'menu-application-button-label'
         });
+
+        this.addActor(app.create_icon_texture(icon_size));
         this.addActor(this.label);
 
         this._draggable = DND.makeDraggable(this.actor);

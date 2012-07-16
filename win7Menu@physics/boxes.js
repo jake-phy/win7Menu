@@ -1,5 +1,7 @@
 const St = imports.gi.St;
 const Lang = imports.lang;
+const Cinnamon = imports.gi.Cinnamon;
+const Clutter = imports.gi.Clutter;
 const PopupMenu = imports.ui.popupMenu;
 const AppFavorites = imports.ui.appFavorites;
 const GnomeSession = imports.misc.gnomeSession;
@@ -18,7 +20,11 @@ function RightButtonsBox(appsMenuButton, menu) {
 RightButtonsBox.prototype = {
     _init: function (appsMenuButton, menu) {
         this.appsMenuButton = appsMenuButton;
-        this.actor = new St.BoxLayout({
+        this.actor = new St.BoxLayout();
+        this.itemsBox = new St.BoxLayout({
+            vertical: true
+        });
+        this.shutDownItemsBox = new St.BoxLayout({
             vertical: true
         });
         this.shutdownBox = new St.BoxLayout({
@@ -27,6 +33,13 @@ RightButtonsBox.prototype = {
         this.actor._delegate = this;
         this.menu = menu;
         this.addItems();
+        this._container = new Cinnamon.GenericContainer();
+        this.actor.add(this._container);
+        this._container.connect('get-preferred-height', Lang.bind(this, this._getPreferredHeight));
+        this._container.connect('get-preferred-width', Lang.bind(this, this._getPreferredWidth));
+        this._container.connect('allocate', Lang.bind(this, this._allocate));
+        this._container.add_actor(this.itemsBox);
+        this._container.add_actor(this.shutDownItemsBox);
     },
 
     addItems: function () {
@@ -39,32 +52,63 @@ RightButtonsBox.prototype = {
         this.computer = new Items.TextBoxItem(_("Computer"), "computer", "Util.spawnCommandLine('nautilus computer:///')", this.menu, this.hoverIcon, false);
         this.packageItem = new Items.TextBoxItem(_("Package Manager"), "synaptic", "Util.spawnCommandLine('gksu synaptic')", this.menu, this.hoverIcon, false);
         this.control = new Items.TextBoxItem(_("Control Center"), "gnome-control-center", "Util.spawnCommandLine('gnome-control-center')", this.menu, this.hoverIcon, false);
-        this.run = new Items.TextBoxItem(_("Run"), "system-run", "Main.getRunDialog().open()", this.menu, this.hoverIcon, false);
         this.terminal = new Items.TextBoxItem(_("Terminal"), "terminal", "Util.spawnCommandLine('gnome-terminal')", this.menu, this.hoverIcon, false);
         this.help = new Items.TextBoxItem(_("Help"), "help", "Util.spawnCommandLine('yelp')", this.menu, this.hoverIcon, false);
-        this.shutdown = new Items.TextBoxItem("Shutdown", "system-shutdown", "Session.ShutdownRemote()", this.menu, this.hoverIcon, false);
+        this.shutdown = new Items.TextBoxItem(_("Shutdown"), "system-shutdown", "Session.ShutdownRemote()", this.menu, this.hoverIcon, false);
         this.shutdownMenu = new Items.ShutdownMenu(this.menu, this.hoverIcon);
 
         this.shutdownBox.add_actor(this.shutdown.actor);
         this.shutdownBox.add_actor(this.shutdownMenu.actor);
 
-        this.actor.add_actor(this.hoverIcon.icon);
-        this.actor.add_actor(this.home.actor);
-        this.actor.add_actor(this.documents.actor);
-        this.actor.add_actor(this.pictures.actor);
-        this.actor.add_actor(this.music.actor);
-        this.actor.add_actor(this.videos.actor);
-        this.actor.add_actor(new PopupMenu.PopupSeparatorMenuItem().actor);
-        this.actor.add_actor(this.computer.actor);
-        this.actor.add_actor(this.control.actor);
-        this.actor.add_actor(this.packageItem.actor);
-        this.actor.add_actor(new PopupMenu.PopupSeparatorMenuItem().actor);
-        this.actor.add_actor(this.run.actor);
-        this.actor.add_actor(this.terminal.actor);
-        this.actor.add_actor(this.help.actor);
-        this.actor.add_actor(new PopupMenu.PopupSeparatorMenuItem().actor);
-        this.actor.add_actor(this.shutdownBox);
-        this.actor.add_actor(this.shutdownMenu.menu.actor);
+        this.itemsBox.add_actor(this.hoverIcon.icon);
+        this.itemsBox.add_actor(this.home.actor);
+        this.itemsBox.add_actor(this.pictures.actor);
+        this.itemsBox.add_actor(this.music.actor);
+        this.itemsBox.add_actor(this.videos.actor);
+        this.itemsBox.add_actor(this.documents.actor);
+        this.itemsBox.add_actor(new PopupMenu.PopupSeparatorMenuItem().actor);
+        this.itemsBox.add_actor(this.computer.actor);
+        this.itemsBox.add_actor(this.control.actor);
+        this.itemsBox.add_actor(new PopupMenu.PopupSeparatorMenuItem().actor);
+        this.itemsBox.add_actor(this.packageItem.actor);
+        this.itemsBox.add_actor(this.terminal.actor);
+        this.itemsBox.add_actor(this.help.actor);
+        this.shutDownItemsBox.add_actor(this.shutdownBox);
+        this.shutDownItemsBox.add_actor(this.shutdownMenu.menu.actor);
+    }, 
+
+    _getPreferredHeight: function (actor, forWidth, alloc) {
+        let[minSize, naturalSize] = this.itemsBox.get_preferred_height(forWidth);
+        alloc.min_size = minSize;
+        alloc.natural_size = naturalSize;
+    },
+
+    _getPreferredWidth: function (actor, forHeight, alloc) {
+        let[minSize, naturalSize] = this.itemsBox.get_preferred_width(forHeight);
+        alloc.min_size = minSize;
+        alloc.natural_size = naturalSize;
+    },
+
+    _allocate: function (actor, box, flags) {
+        let childBox = new Clutter.ActorBox();
+
+        let[minWidth, minHeight, naturalWidth, naturalHeight] = this.itemsBox.get_preferred_size();
+
+        childBox.y1 = 0;
+        childBox.y2 = childBox.y1 + naturalHeight;
+        childBox.x1 = 0;
+        childBox.x2 = childBox.x1 + naturalWidth;
+        this.itemsBox.allocate(childBox, flags);
+
+        let menuHeight = this.menu.actor.get_height();
+
+        [minWidth, minHeight, naturalWidth, naturalHeight] = this.shutDownItemsBox.get_preferred_size();
+
+        childBox.y1 = menuHeight - 100;
+        childBox.y2 = childBox.y1;
+        childBox.x1 = 0;
+        childBox.x2 = childBox.x1 + naturalWidth;
+        this.shutDownItemsBox.allocate(childBox, flags);
     }
 }
 

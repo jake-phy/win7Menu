@@ -214,6 +214,18 @@ MyApplet.prototype = {
             index = 0;
             this._previousSelectedItemIndex = this._selectedItemIndex;
             this._selectedItemIndex = -1;
+            let item_actor = children[this._selectedItemIndex];
+            this._select_category(item_actor._delegate.dir, item_actor._delegate);
+            item_actor._delegate.menu.toggle();
+        } else if (this._activeContainer === this.categoriesBox && (symbol == Clutter.KEY_Return || symbol == Clutter.KP_Enter)) {
+            if (children[this._selectedItemIndex] == children[0]) {
+                let item_actor = children[0];
+                item_actor.menu.actor.get_children()[0].activate();
+            }
+                
+//            this._select_category(item_actor._delegate.dir, item_actor._delegate);
+//            item_actor._delegate.menu.toggle();
+            return true;
         } else {
             return false;
         }
@@ -493,13 +505,9 @@ MyApplet.prototype = {
             style_class: 'menu-favorites-box',
             vertical: true
         });
-        this.leftPaneBox.style = "padding: 0px";
 
-        this.appsButtonSearchBox = new St.BoxLayout({
-            style_class: 'menu-favorites-box',
-            vertical: true
-        });
-        this.appsButtonSearchBox.style = "padding: 0px";
+        this.separator = new PopupMenu.PopupSeparatorMenuItem();
+        this.separator.actor.set_style("padding: 0em 1em;");
 
         this.rightButtonsBox = new Boxes.RightButtonsBox(this, this.menu);
 
@@ -560,11 +568,11 @@ MyApplet.prototype = {
         this.categoriesBox.add_actor(this.placesButton.menu.actor);
         this.categoriesScrollBox.add_actor(this.categoriesBox);
         this.searchBox.add_actor(this.searchEntry);
-        this.appsButtonSearchBox.add_actor(this.appsButton.actor);
-        this.appsButtonSearchBox.add_actor(this.searchBox);
         this.leftPaneBox.add_actor(this.selectedAppBox);
         this.leftPaneBox.add_actor(this.leftPane);
-        this.leftPaneBox.add_actor(this.appsButtonSearchBox);
+        this.leftPaneBox.add_actor(this.separator.actor);
+        this.leftPaneBox.add_actor(this.appsButton.actor);
+        this.leftPaneBox.add_actor(this.searchBox);
         this.mainBox.add_actor(this.leftPaneBox);
         this.mainBox.add_actor(this.rightButtonsBox.actor);
         section.actor.add_actor(this.mainBox);
@@ -754,10 +762,7 @@ MyApplet.prototype = {
 
     _doSearch: function () {
         if (this.leftPane.get_child() === this.favsBox && this.menu.isOpen) {
-            this.leftPane.set_child(this.categoriesScrollBox, {
-                y_align: St.Align.END,
-                y_fill: false
-            });
+            this.leftPane.set_child(this.categoriesScrollBox);
             this.appsButton.label.set_text(' Favorites');
             this.selectedAppBox.show();
             this._appletStyles();
