@@ -44,12 +44,12 @@ RightButtonsBox.prototype = {
 
     addItems: function () {
         this.hoverIcon = new Items.HoverIcon();
-        this.home = new Items.TextBoxItem(_("Home"), "folder-home", "Util.spawnCommandLine('nautilus')", this.menu, this.hoverIcon, false);
-        this.documents = new Items.TextBoxItem(_("Documents"), "folder-documents", "Util.spawnCommandLine('nautilus Documents')", this.menu, this.hoverIcon, false);
-        this.pictures = new Items.TextBoxItem(_("Pictures"), "folder-pictures", "Util.spawnCommandLine('nautilus Pictures')", this.menu, this.hoverIcon, false);
-        this.music = new Items.TextBoxItem(_("Music"), "folder-music", "Util.spawnCommandLine('nautilus Music')", this.menu, this.hoverIcon, false);
-        this.videos = new Items.TextBoxItem(_("Videos"), "folder-videos", "Util.spawnCommandLine('nautilus Videos')", this.menu, this.hoverIcon, false);
-        this.computer = new Items.TextBoxItem(_("Computer"), "computer", "Util.spawnCommandLine('nautilus computer:///')", this.menu, this.hoverIcon, false);
+        this.home = new Items.TextBoxItem(_("Home"), "folder-home", "Util.spawnCommandLine('nemo')", this.menu, this.hoverIcon, false);
+        this.documents = new Items.TextBoxItem(_("Documents"), "folder-documents", "Util.spawnCommandLine('nemo Documents')", this.menu, this.hoverIcon, false);
+        this.pictures = new Items.TextBoxItem(_("Pictures"), "folder-pictures", "Util.spawnCommandLine('nemo Pictures')", this.menu, this.hoverIcon, false);
+        this.music = new Items.TextBoxItem(_("Music"), "folder-music", "Util.spawnCommandLine('nemo Music')", this.menu, this.hoverIcon, false);
+        this.videos = new Items.TextBoxItem(_("Videos"), "folder-videos", "Util.spawnCommandLine('nemo Videos')", this.menu, this.hoverIcon, false);
+        this.computer = new Items.TextBoxItem(_("Computer"), "computer", "Util.spawnCommandLine('nemo computer:///')", this.menu, this.hoverIcon, false);
         this.packageItem = new Items.TextBoxItem(_("Package Manager"), "synaptic", "Util.spawnCommandLine('gksu synaptic')", this.menu, this.hoverIcon, false);
         this.control = new Items.TextBoxItem(_("Control Center"), "gnome-control-center", "Util.spawnCommandLine('gnome-control-center')", this.menu, this.hoverIcon, false);
         this.terminal = new Items.TextBoxItem(_("Terminal"), "terminal", "Util.spawnCommandLine('gnome-terminal')", this.menu, this.hoverIcon, false);
